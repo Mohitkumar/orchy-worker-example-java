@@ -2,41 +2,54 @@ package io.github.orchy.example;
 
 import io.github.mohitkumar.orchy.worker.Worker;
 import io.github.mohitkumar.orchy.worker.WorkerManager;
+import io.github.orchy.example.action.EnhanceDataAction;
+import io.github.orchy.example.action.SmsAction;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.ComponentScan;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 
-public class Main {
-    public static void main(String[] args) {
-        Function<Map<String, Object>, Map<String, Object>> addDataFn= (Map<String, Object> input) ->{
-            System.out.println(input);
-            input.put("newKey",22);
-            return input;
-        };
-        Function<Map<String, Object>, Map<String, Object>> printFn= (Map<String, Object> input) ->{
-            System.out.println(input);
-            return input;
-        };
-        Function<Map<String, Object>, Map<String, Object>> enhanceDataFn= (Map<String, Object> input) ->{
-            input.put("key", "prefix_"+input.get("key"));
-            return input;
-        };
-        Worker worker1 = Worker
-                .newBuilder()
-                .DefaultWorker(addDataFn,"add-data-worker", 2,1, TimeUnit.MILLISECONDS).withTimeout(80).
-                build();
-        Worker worker2 = Worker
-                .newBuilder()
-                .DefaultWorker(printFn,"print-worker", 2,1,TimeUnit.MILLISECONDS).build();
+@SpringBootApplication
+public class Main implements CommandLineRunner
+{
+    private static final Logger LOGGER = LoggerFactory.getLogger(Main.class);
 
-        Worker worker3 = Worker
+    @Autowired
+    private WorkerManager manager;
+
+    @Autowired
+    private SmsAction smsAction;
+
+    @Autowired
+    private EnhanceDataAction enhanceDataAction;
+
+    public static void main(String[] args) {
+        SpringApplication.run(Main.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        System.out.println("run");
+        Function<Map<String, Object>, Map<String, Object>> logAction= (Map<String, Object> input) ->{
+            LOGGER.info("output ={}", input);
+            return Collections.emptyMap();
+        };
+
+        Worker logWorker = Worker
                 .newBuilder()
-                .DefaultWorker(enhanceDataFn,"enhanceData", 2,1,TimeUnit.MILLISECONDS).build();
-        WorkerManager manager = new WorkerManager("localhost",8099);
-        manager.registerWorker(worker1,10);
-        manager.registerWorker(worker2,10);
-        manager.registerWorker(worker3,10);
+                .DefaultWorker(logAction,"logAction", 2,1,TimeUnit.MILLISECONDS).build();
+
+        manager.registerWorker(logWorker,10);
+        manager.registerWorker(Worker.newBuilder().DefaultWorker(smsAction,"smsAction",2,1,TimeUnit.MILLISECONDS).build(), 10);
+        manager.registerWorker(Worker.newBuilder().DefaultWorker(enhanceDataAction,"enhanceData",2,1,TimeUnit.MILLISECONDS).build(), 10);
         manager.start();
     }
 }

@@ -1,0 +1,62 @@
+{
+  "name" :"wf6",
+  "rootAction":1,
+  "onSuccess" :"DELETE",
+  "onFailure" :"DELETE",
+  "actions":[
+    {
+      "id":1,
+      "type":"user",
+      "name":"enhanceData",
+      "parameters":{
+        "param1":23,
+        "param2":"jk",
+        "param3":"$.input.k1",
+        "nested":{
+          "key1":"d1",
+          "key2":"$.input.nest.k1",
+          "list":[23,{"nest":{"k":"$.input.nest.k1"}},"$.input.k2",{"list":["internal","$.input.nest.k1"]}]
+        }
+      },
+      "next":{"default":[6]}
+    },
+    {
+      "id":6,
+      "type":"system",
+      "name":"javascript",
+      "expression":"if($['1'].output.key1 == '200') {$['x']='nesX'};",
+      "next":{"default":[2]}
+    },
+    {
+      "id":2,
+      "type":"system",
+      "name":"switch",
+      "expression":"$.1.output.newKey",
+      "next":{
+        "newData": [4]
+      }
+    },
+    {
+      "id":4,
+      "type":"user",
+      "name":"smsAction",
+      "parameters":{
+        "to":"+91121212121"
+      },
+      "next":{
+        "default": [4]
+      }
+    },
+    {
+      "id":4,
+      "type":"user",
+      "name":"logAction",
+      "parameters":{
+        "smsStatus":"$.4.output.status",
+        "param2" :"$.input.k2",
+        "param3" :"$.1.output.newKey",
+        "param4" :"$.1.output.nested.list"
+      }
+    }
+  ]
+}
