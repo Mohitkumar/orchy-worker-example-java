@@ -15,6 +15,7 @@ import org.springframework.context.annotation.ComponentScan;
 import java.util.Collections;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Function;
 
 @SpringBootApplication
@@ -31,6 +32,8 @@ public class Main implements CommandLineRunner
     @Autowired
     private EnhanceDataAction enhanceDataAction;
 
+    private static AtomicLong counter = new AtomicLong(0);
+
     public static void main(String[] args) {
         SpringApplication.run(Main.class, args);
     }
@@ -40,16 +43,17 @@ public class Main implements CommandLineRunner
         System.out.println("run");
         Function<Map<String, Object>, Map<String, Object>> logAction= (Map<String, Object> input) ->{
             LOGGER.info("output ={}", input);
+            System.out.println(counter.incrementAndGet());
             return Collections.emptyMap();
         };
 
         Worker logWorker = Worker
                 .newBuilder()
-                .DefaultWorker(logAction,"logAction", 2,1,TimeUnit.MILLISECONDS).build();
+                .DefaultWorker(logAction,"logAction", 2,100,TimeUnit.MILLISECONDS).build();
 
         manager.registerWorker(logWorker,10);
-        manager.registerWorker(Worker.newBuilder().DefaultWorker(smsAction,"smsAction",2,1,TimeUnit.MILLISECONDS).build(), 10);
-        manager.registerWorker(Worker.newBuilder().DefaultWorker(enhanceDataAction,"enhanceData",2,1,TimeUnit.MILLISECONDS).build(), 10);
+        manager.registerWorker(Worker.newBuilder().DefaultWorker(smsAction,"smsAction",2,100,TimeUnit.MILLISECONDS).build(), 10);
+        manager.registerWorker(Worker.newBuilder().DefaultWorker(enhanceDataAction,"enhanceData",2,100,TimeUnit.MILLISECONDS).build(), 10);
         manager.start();
     }
 }
