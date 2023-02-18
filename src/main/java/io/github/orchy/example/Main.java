@@ -1,5 +1,6 @@
 package io.github.orchy.example;
 
+import io.github.mohitkumar.orchy.worker.RetryPolicy;
 import io.github.mohitkumar.orchy.worker.Worker;
 import io.github.mohitkumar.orchy.worker.WorkerManager;
 import io.github.orchy.example.action.EnhanceDataAction;
@@ -52,8 +53,15 @@ public class Main implements CommandLineRunner
                 .DefaultWorker(logAction,"logAction", 2,100,TimeUnit.MILLISECONDS).build();
 
         manager.registerWorker(logWorker,10);
-        manager.registerWorker(Worker.newBuilder().DefaultWorker(smsAction,"smsAction",2,100,TimeUnit.MILLISECONDS).build(), 10);
-        manager.registerWorker(Worker.newBuilder().DefaultWorker(enhanceDataAction,"enhanceData",2,100,TimeUnit.MILLISECONDS).build(), 10);
+        manager.registerWorker(Worker.newBuilder()
+                .DefaultWorker(smsAction,"smsAction",2,100,TimeUnit.MILLISECONDS)
+                .build(), 10);
+
+        manager.registerWorker(Worker.newBuilder()
+                .DefaultWorker(enhanceDataAction,"enhanceData",2,100,TimeUnit.MILLISECONDS)
+                        .withRetryCount(3).withRetryPolicy(RetryPolicy.FIXED).withTimeout(100)
+                .build(), 10);
+
         manager.start();
     }
 }
