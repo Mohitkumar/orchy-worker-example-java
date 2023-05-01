@@ -1,5 +1,6 @@
 package io.github.orchy.example.action;
 
+import io.github.orchy.example.model.User;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;

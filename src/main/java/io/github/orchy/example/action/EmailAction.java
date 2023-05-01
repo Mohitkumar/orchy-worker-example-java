@@ -9,14 +9,16 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class SmsAction implements Function<Map<String, Object>, Map<String, Object>> {
-    private static final Logger LOGGER = LoggerFactory.getLogger(SmsAction.class);
+public class EmailAction implements Function<Map<String, Object>, Map<String, Object>> {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(EmailAction.class);
 
     @Override
     public Map<String, Object> apply(Map<String, Object> input) {
-        String to = input.get("phoneNumber").toString();
+        String to = input.get("to").toString();
+        String subject = input.get("subject").toString();
         String message = input.get("message").toString();
-        LOGGER.info("sending sms to {}, message {}", to, message);
+        LOGGER.info("sending email to {}, subject {} message {}", to, subject,message);
         Map<String, Object> out = new HashMap<>();
         out.put("status", "success");
         return out;
