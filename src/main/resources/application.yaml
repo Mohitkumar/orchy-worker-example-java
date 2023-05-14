@@ -1,0 +1,12 @@
+orchy:
+  server:
+    host: ${ORCHY_HOST}
+    PORT: ${ORCHY_PORT}
+management:
+  endpoints:
+    web:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
