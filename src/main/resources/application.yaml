@@ -10,3 +10,7 @@ management:
   endpoint:
     health:
       show-details: ALWAYS
+      probes:
+        enabled: true
+server:
+  port: 8081
