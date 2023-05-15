@@ -30,12 +30,18 @@ spec:
           livenessProbe:
             httpGet:
               path: /actuator/health/liveness
-              port: 8081
-            initialDelaySeconds: 3
-            periodSeconds: 3
-            readinessProbe:
-              httpGet:
-                path: /actuator/health/readiness
-                port: 8081
-              initialDelaySeconds: 3
-              periodSeconds: 3
+              port: {{ .Values.httpPort }}
+            initialDelaySeconds: 90
+            timeoutSeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3
+          readinessProbe:
+            httpGet:
+              path: /actuator/health/readiness
+              port: {{ .Values.httpPort }}
+            initialDelaySeconds: 90
+            timeoutSeconds: 30
+            periodSeconds: 30
+            successThreshold: 1
+            failureThreshold: 3

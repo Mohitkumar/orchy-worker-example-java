@@ -12,3 +12,4 @@ image:
 orchy:
   host: orchy-rpc
   port: 8400
+httpPort: 8081
